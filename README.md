@@ -26,34 +26,45 @@ which checks if Java project sources are compliant to naming conventions by usin
 the [File Naming Watch Dog Library](https://github.com/luossfi/FileNamingWatchDog).
 
 ## Adding The Plugin to A Build Script
+### All Gradle versions:
 ```groovy
 buildscript {
   repositories {
-    //TODO: Define afer publishing
+    maven {
+      url 'https://plugins.gradle.org/m2/'
+    }
   }
-  
   dependencies {
-    classpath "org.luossfi.gradle:FileNamingWatchDogGradlePlugin:1.0"
+    classpath 'org.luossfi.gradle:FileNamingWatchDogGradlePlugin:1.0'
   }
 }
 
 apply plugin: 'org.luossfi.file.naming.watch.dog'
 ```
+### Since Gradle Version 2.1:
+```
+plugins {
+  id 'org.luossfi.file.naming.watch.dog' version '1.0'
+}
+```
+
+See also the [plugin's page](https://plugins.gradle.org/plugin/org.luossfi.file.naming.watch.dog)
+on the Gradle Plugin Portal.
 
 ## Configuring The Plugin
 ```groovy
 fileNamingWatchDog {
-  definitionFile = file("Path to Convention Definition File")
-  placeholderValues = ["PLACEHOLDER":"value"]
+  definitionFile = file('Path to Convention Definition File')
+  placeholderValues = ['PLACEHOLDER':'value']
   failBuild = true
   sourceDirs = sourceSets.main.java.srcDirs
 }
 ```
-* **definitionFile (default: `file( "./ConventionDefinition" )`)**   
+* **definitionFile (default: `file( './ConventionDefinition' )`)**   
   Property of type `java.io.File` defining where the naming convention definition file 
   can be found. See [File Naming Watch Dog Documentation](https://github.com/luossfi/FileNamingWatchDog/blob/master/doc/FileNamingWatchDog.md)
   for details on how to define the naming conventions.
-* **placeholderValues (default: `[]`)**   
+* **placeholderValues (default: empty map)**   
   Property of type `java.util.Map` mapping the placeholder names (key; `java.lang.String`) 
   to their values (value; `java.lang.String`).
 * **sourceDirs (default: `sourceSets.main.allSource.srcDirs - sourceSets.main.resources.srcDirs` 
