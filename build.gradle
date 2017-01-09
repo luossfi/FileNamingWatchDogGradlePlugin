@@ -58,7 +58,7 @@ dependencies {
 
 // ========== Gradle Wrapper ==========
 wrapper {
-  gradleVersion '3.2.1'
+  gradleVersion '3.3'
 }
 
 // ========== Maven Publishing ==========
