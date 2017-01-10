@@ -37,10 +37,10 @@ public class MessageTranslator
 {
 
   /** The error message bundle's name. */
-  private static final String ERROR_MESSAGE_BUNDLE = "ErrorMessages";
+  private static final String ERROR_MESSAGE_BUNDLE = "org.luossfi.messages.fnwdgp.ErrorMessages";
 
   /** The log message bundle's name. */
-  private static final String LOG_MESSAGE_BUNDLE   = "LogMessages";
+  private static final String LOG_MESSAGE_BUNDLE   = "org.luossfi.messages.fnwdgp.LogMessages";
 
   /**
    * Translate the input error message key and replace the placeholders inside

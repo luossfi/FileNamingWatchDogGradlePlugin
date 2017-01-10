@@ -35,7 +35,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath 'org.luossfi.gradle:FileNamingWatchDogGradlePlugin:1.0.1'
+    classpath 'org.luossfi.gradle:FileNamingWatchDogGradlePlugin:1.0.2'
   }
 }
 
@@ -44,7 +44,7 @@ apply plugin: 'org.luossfi.file.naming.watch.dog'
 ### Since Gradle Version 2.1:
 ```
 plugins {
-  id 'org.luossfi.file.naming.watch.dog' version '1.0.1'
+  id 'org.luossfi.file.naming.watch.dog' version '1.0.2'
 }
 ```
 
