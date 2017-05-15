@@ -31,10 +31,10 @@ public final class ErrorMessageConstants
 {
 
   /**
-   * The value of property "fileNamingWatchDog.definitionFile" must not be null,
-   * please set it to a valid file!
+   * The value of property "definitionFiles" must not be null, please set it to
+   * a list of valid files!
    */
-  public static final String DEF_FILE_IS_NULL = "fnwdgp.error.01";
+  public static final String DEF_FILES_IS_NULL = "fnwdgp.error.01";
 
   /**
    * Private constructor, this is a constants only class

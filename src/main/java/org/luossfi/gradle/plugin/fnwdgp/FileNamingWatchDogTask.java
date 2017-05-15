@@ -23,8 +23,12 @@ package org.luossfi.gradle.plugin.fnwdgp;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -33,7 +37,6 @@ import java.util.SortedMap;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.InvalidUserDataException;
-import org.gradle.api.Project;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.SourceSet;
@@ -56,7 +59,126 @@ import org.luossfi.watchdog.fnwd.FileNamingWatchDog;
  */
 public class FileNamingWatchDogTask extends DefaultTask
 {
-  Logger log = Logging.getLogger( FileNamingWatchDogTask.class );
+  Logger                      log;
+
+  /** The naming convention definition files. */
+  private List<File>          definitionFiles;
+
+  /** The placeholder values. */
+  private Map<String, String> placeholderValues;
+
+  /** The source directories to scan. */
+  private Set<File>           sourceDirs;
+
+  /** If a convention violation should fail the build. */
+  private boolean             failBuild;
+
+  /**
+   * Instantiates a new file naming watch dog task and set a default definition
+   * file <code>$projectDir/ConventionDefinition</code>
+   */
+  public FileNamingWatchDogTask()
+  {
+    super();
+    log = Logging.getLogger( FileNamingWatchDogTask.class );
+    definitionFiles = new LinkedList<>();
+    definitionFiles.add( getProject().file( "./ConventionDefinition" ) );
+    placeholderValues = new HashMap<>();
+    definitionFiles = new LinkedList<>();
+    sourceDirs = new HashSet<>();
+    failBuild = true;
+  }
+
+  /**
+   * Gets the naming convention definition files.
+   *
+   * @return the naming convention definition files
+   */
+  public List<File> getDefinitionFiles()
+  {
+    return definitionFiles;
+  }
+
+  /**
+   * Sets multiple custom naming convention definition files.
+   *
+   * @param definitionFiles the new definition files
+   */
+  public void setDefinitionFiles( List<File> definitionFiles )
+  {
+    this.definitionFiles = definitionFiles;
+  }
+
+  /**
+   * Adds a custom naming convention definition file to the existing ones.
+   *
+   * @param definitionFile the definition file to add
+   */
+  public void addDefinitionFile( File definitionFile )
+  {
+    this.definitionFiles.add( definitionFile );
+  }
+
+  /**
+   * Gets the placeholder values to be used for the naming convention definition
+   * file.
+   *
+   * @return the placeholder values
+   */
+  public Map<String, String> getPlaceholderValues()
+  {
+    return placeholderValues;
+  }
+
+  /**
+   * Sets custom the placeholder values.
+   *
+   * @param placeholderValues the placeholder values
+   */
+  public void setPlaceholderValues( Map<String, String> placeholderValues )
+  {
+    this.placeholderValues = placeholderValues;
+  }
+
+  /**
+   * Gets the source directories to scan with the watch dog.
+   *
+   * @return the source directories
+   */
+  public Set<File> getSourceDirs()
+  {
+    return sourceDirs;
+  }
+
+  /**
+   * Sets custom source directories.
+   *
+   * @param sourceDirs the new source directories
+   */
+  public void setSourceDirs( Set<File> sourceDirs )
+  {
+    this.sourceDirs = sourceDirs;
+  }
+
+  /**
+   * Checks if the build should fail if the watch dog finds a violation.
+   *
+   * @return true, if the build should fail, false otherwise
+   */
+  public boolean isFailBuild()
+  {
+    return failBuild;
+  }
+
+  /**
+   * Sets if the build should fail if the watch dog finds a violation.
+   *
+   * @param failBuild true if the build should fail, false otherwise
+   */
+  public void setFailBuild( boolean failBuild )
+  {
+    this.failBuild = failBuild;
+  }
 
   /**
    * Checks the task's configuration and runs the File Naming Watch Dog.
@@ -69,18 +191,11 @@ public class FileNamingWatchDogTask extends DefaultTask
   @TaskAction
   public void runWatchDog()
   {
-    Project project = getProject();
-
-    FileNamingWatchDogExtension watchDogExtension = project.getExtensions().getByType( FileNamingWatchDogExtension.class );
-
-    File definitionFile = watchDogExtension.getDefinitionFile();
-
-    if ( definitionFile == null )
+    if ( definitionFiles == null )
     {
-      throw new InvalidUserDataException( MessageTranslator.translateError( ErrorMessageConstants.DEF_FILE_IS_NULL ) );
+      throw new InvalidUserDataException( MessageTranslator.translateError( ErrorMessageConstants.DEF_FILES_IS_NULL ) );
     }
 
-    Set<File> sourceDirs = watchDogExtension.getSourceDirs();
     if ( sourceDirs == null || sourceDirs.isEmpty() )
     {
       sourceDirs = getMainSrcSetDirs();
@@ -91,7 +206,6 @@ public class FileNamingWatchDogTask extends DefaultTask
       sourceDirs.forEach( file -> log.debug( MessageTranslator.translateLog( LogMessageConstants.FOUND_SRC_DIR, file.getAbsolutePath() ) ) );
     }
 
-    Map<String, String> placeholderValues = watchDogExtension.getPlaceholderValues();
     if ( placeholderValues == null )
     {
       placeholderValues = Collections.emptyMap();
@@ -99,13 +213,13 @@ public class FileNamingWatchDogTask extends DefaultTask
 
     if ( !sourceDirs.isEmpty() )
     {
-      boolean failed = runWatchDog( definitionFile.toPath(), placeholderValues, sourceDirs );
+      boolean failed = runWatchDog( definitionFiles, placeholderValues, sourceDirs );
 
       /*
        * Fail the build if the watch dog found something and is configured to
        * fail
        */
-      if ( failed && watchDogExtension.isFailBuild() )
+      if ( failed && failBuild /* watchDogExtension. isFailBuild() */ )
       {
         throw new GradleException();
       }
@@ -124,9 +238,10 @@ public class FileNamingWatchDogTask extends DefaultTask
    * @param sourceDirs the source directories to scan
    * @return false if the watch dog finds convention violations, true otherwise
    */
-  private boolean runWatchDog( Path definitionFile, Map<String, String> placeholderValues, Set<File> sourceDirs )
+  private boolean runWatchDog( List<File> definitionFiles, Map<String, String> placeholderValues, Set<File> sourceDirs )
   {
-    FileNamingWatchDog watchDog = new FileNamingWatchDog( definitionFile, placeholderValues );
+    List<Path> definitionPaths = convertFileListToPathList( definitionFiles );
+    FileNamingWatchDog watchDog = new FileNamingWatchDog( definitionPaths, placeholderValues );
 
     Set<Map<String, Set<String>>> findings = new HashSet<>();
 
@@ -202,5 +317,22 @@ public class FileNamingWatchDogTask extends DefaultTask
     }
 
     return sourceDirs;
+  }
+
+  /**
+   * Converts the input <code>fileList</code> into a list of equivalent
+   * {@link Path paths}.
+   *
+   * @param fileList the file list
+   */
+  private List<Path> convertFileListToPathList( List<File> fileList )
+  {
+    List<Path> pathList = new ArrayList<>( fileList.size() );
+    for ( File file : fileList )
+    {
+      pathList.add( file.toPath() );
+    }
+
+    return pathList;
   }
 }

@@ -38,7 +38,7 @@ public final class LogMessageConstants
 
   /**
    * No source directories defined, please define them by setting property
-   * "fileNamingWatchDog.sourceDirs".
+   * "sourceDirs".
    */
   public static final String NO_SRC_DIRS          = "fnwdgp.log.03";
 

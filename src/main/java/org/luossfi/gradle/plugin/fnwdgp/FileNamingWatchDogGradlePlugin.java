@@ -25,8 +25,8 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
 /**
- * Defines the plugin itself by adding the {@link FileNamingWatchDogExtension}
- * and the {@link FileNamingWatchDogTask} to the project.
+ * Defines the plugin itself by adding the {@link FileNamingWatchDogTask} to the
+ * project.
  *
  * @author Steff Lukas
  * @since 1.0
@@ -37,7 +37,6 @@ public class FileNamingWatchDogGradlePlugin implements Plugin<Project>
   @Override
   public void apply( Project project )
   {
-    project.getExtensions().create( "fileNamingWatchDog", FileNamingWatchDogExtension.class, project );
     project.getTasks().create( "runWatchDog", FileNamingWatchDogTask.class );
   }
 
