@@ -35,7 +35,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath 'org.luossfi.gradle:FileNamingWatchDogGradlePlugin:1.0.2'
+    classpath 'org.luossfi.gradle:FileNamingWatchDogGradlePlugin:1.1'
   }
 }
 
@@ -44,7 +44,7 @@ apply plugin: 'org.luossfi.file.naming.watch.dog'
 ### Since Gradle Version 2.1:
 ```
 plugins {
-  id 'org.luossfi.file.naming.watch.dog' version '1.0.2'
+  id 'org.luossfi.file.naming.watch.dog' version '1.1'
 }
 ```
 
@@ -53,17 +53,22 @@ on the Gradle Plugin Portal.
 
 ## Configuring The Plugin
 ```groovy
-fileNamingWatchDog {
-  definitionFile = file('Path to Convention Definition File')
-  placeholderValues = ['PLACEHOLDER':'value']
+runWatchDog {
+  definitionFiles = [ file( 'Path to Convention Definition File' ), file( 'Path to Another Convention Defintion File' ) ]
+  placeholderValues = [ 'PLACEHOLDER': 'value' ]
   failBuild = true
   sourceDirs = sourceSets.main.java.srcDirs
 }
 ```
-* **definitionFile (default: `file( './ConventionDefinition' )`)**   
-  Property of type `java.io.File` defining where the naming convention definition file 
-  can be found. See [File Naming Watch Dog Documentation](https://github.com/luossfi/FileNamingWatchDog/blob/master/doc/FileNamingWatchDog.md)
+* **definitionFiles (default: `[ file( './ConventionDefinition' ) ]`)**   
+  Property of type `java.lang.List` containing the paths (`java.io.File`) to the convention definition files to be used for
+  checking. See [File Naming Watch Dog Documentation](https://github.com/luossfi/FileNamingWatchDog/blob/master/doc/FileNamingWatchDog.md)
   for details on how to define the naming conventions.
+* **definitionFile**   
+  Convenience setter of type `java.io.File` for setting up a single convention definition file.
+  Same as `definitionFiles = [ file( 'single file' ) ]`.
+* **addDefinitionFile**   
+  Adds another path (type `java.io.File`) to a definition file at the end of the already existing definition file paths.
 * **placeholderValues (default: empty map)**   
   Property of type `java.util.Map` mapping the placeholder names (key; `java.lang.String`) 
   to their values (value; `java.lang.String`).
@@ -74,7 +79,18 @@ fileNamingWatchDog {
 * **failBuild (default: `true`)**   
   Property of type `boolean` defining whether the build should fail if the watch dog 
   finds something or not.
-
+## Define Additional `runWatchDog` tasks
+```groovy
+// Define new task from original FileNamingWatchDogTask
+task runOtherWatchDog( type: org.luossfi.gradle.plugin.fnwdgp.FileNamingWatchDogTask ) {
+  definitionFile = file( "other convention definition file" )
+  placeholderValues = [ 'PLACEHOLDER': 'value' ]
+  failBuild = false
+  sourceDirs = [ file( 'bar' ) ]
+}
+```
+## Migration to Version 1.1
+Replace all occurrences of `fileNamingWatchDog` with `runWatchDog`.
 ## Todos
 
 - [ ] Write Unit Tests

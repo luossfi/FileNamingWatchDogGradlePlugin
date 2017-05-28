@@ -110,13 +110,25 @@ public class FileNamingWatchDogTask extends DefaultTask
   }
 
   /**
+   * Sets single custom naming convention definition file and deletes all others
+   * from this task.
+   *
+   * @param definitionFile the new definition file
+   */
+  public void setDefinitionFile( File definitionFile )
+  {
+    definitionFiles.clear();
+    definitionFiles.add( definitionFile );
+  }
+
+  /**
    * Adds a custom naming convention definition file to the existing ones.
    *
    * @param definitionFile the definition file to add
    */
   public void addDefinitionFile( File definitionFile )
   {
-    this.definitionFiles.add( definitionFile );
+    definitionFiles.add( definitionFile );
   }
 
   /**
